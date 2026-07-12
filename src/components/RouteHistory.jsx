@@ -22,11 +22,11 @@ export default function RouteHistory({ routeHistory, onReplayHistory }) {
             onClick={() => onReplayHistory(entry)}
             className="history-item w-full text-left cursor-pointer"
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <span className="text-[0.7rem] font-medium" style={{ color: 'var(--color-path-400)' }}>
-                {entry.source} → {entry.destination}
+                {entry.source} -&gt; {entry.destination}
               </span>
-              <span className="text-[0.55rem]" style={{ color: 'var(--color-surface-500)' }}>
+              <span className="text-[0.55rem] shrink-0" style={{ color: 'var(--color-surface-500)' }}>
                 {entry.timestamp}
               </span>
             </div>

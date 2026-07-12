@@ -36,6 +36,9 @@ export default function Footer() {
           <p className="text-[10px] text-[var(--text-tertiary)]">
             &copy; {new Date().getFullYear()} LogiFlow Systems Inc. All rights reserved.
           </p>
+          <p className="text-[14px] text-[var(--text-tertiary)]">
+            Made with ❤️ by SUBHA
+          </p>
         </div>
 
         {/* Links */}

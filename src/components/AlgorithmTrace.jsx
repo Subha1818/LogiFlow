@@ -1,18 +1,18 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-export default function AlgorithmTrace({ type, steps, currentStep, onStepChange }) {
+export default function AlgorithmTrace({ type, steps = [], currentStep, onStepChange, graphNodes = [] }) {
   const [autoPlay, setAutoPlay] = useState(false);
-  const [speed, setSpeed] = useState(1000); // ms per step
+  const [speed, setSpeed] = useState(1000);
   const autoPlayRef = useRef(null);
 
   const totalSteps = steps.length;
   const step = steps[currentStep] || null;
   const isFirst = currentStep <= 0;
   const isLast = currentStep >= totalSteps - 1;
+  const currentNodeSet = new Set(graphNodes);
 
-  // Auto-play logic
   useEffect(() => {
-    if (autoPlay && !isLast) {
+    if (autoPlay && !isLast && totalSteps > 0) {
       autoPlayRef.current = setInterval(() => {
         onStepChange(prev => {
           const next = prev + 1;
@@ -32,7 +32,6 @@ export default function AlgorithmTrace({ type, steps, currentStep, onStepChange 
     };
   }, [autoPlay, speed, isLast, totalSteps, onStepChange]);
 
-  // Stop auto-play when reaching end
   useEffect(() => {
     if (isLast && autoPlay) {
       setAutoPlay(false);
@@ -51,7 +50,6 @@ export default function AlgorithmTrace({ type, steps, currentStep, onStepChange 
 
   const toggleAutoPlay = useCallback(() => {
     if (isLast) {
-      // Restart from beginning
       onStepChange(0);
       setAutoPlay(true);
     } else {
@@ -76,12 +74,10 @@ export default function AlgorithmTrace({ type, steps, currentStep, onStepChange 
         </span>
       </div>
 
-      {/* Step Counter */}
       <div className="text-xs font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-        Step {currentStep + 1} of {totalSteps}
+        Step {totalSteps > 0 ? currentStep + 1 : 0} of {totalSteps}
       </div>
 
-      {/* Progress Bar */}
       <div className="w-full h-1 rounded-full mb-3" style={{ background: 'var(--border-color)' }}>
         <div
           className="h-full rounded-full transition-all duration-300"
@@ -92,7 +88,6 @@ export default function AlgorithmTrace({ type, steps, currentStep, onStepChange 
         />
       </div>
 
-      {/* Controls */}
       <div className="flex items-center gap-2 mb-3">
         <button
           onClick={handlePrev}
@@ -147,7 +142,6 @@ export default function AlgorithmTrace({ type, steps, currentStep, onStepChange 
         </button>
       </div>
 
-      {/* Speed Slider */}
       <div className="flex items-center gap-2 mb-3">
         <span className="text-[0.55rem]" style={{ color: 'var(--text-tertiary)' }}>Fast</span>
         <input
@@ -163,17 +157,15 @@ export default function AlgorithmTrace({ type, steps, currentStep, onStepChange 
         <span className="text-[0.55rem]" style={{ color: 'var(--text-tertiary)' }}>Slow</span>
       </div>
 
-      {/* Current Action */}
       {step && (
         <div
           className="rounded-lg p-2.5 mb-2 text-xs font-mono leading-relaxed pulse-active"
           style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
         >
-          {step.action}
+          {normalizeTraceText(step.action || step.reason || '')}
         </div>
       )}
 
-      {/* Distance Table (Dijkstra) */}
       {type === 'dijkstra' && step?.distanceTable && (
         <div className="max-h-40 overflow-y-auto rounded-lg" style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)' }}>
           <table className="trace-table w-full">
@@ -186,21 +178,23 @@ export default function AlgorithmTrace({ type, steps, currentStep, onStepChange 
             </thead>
             <tbody>
               {Object.entries(step.distanceTable)
+                .filter(([node]) => currentNodeSet.size === 0 || currentNodeSet.has(node))
                 .sort(([, a], [, b]) => a - b)
                 .map(([node, dist]) => {
                   const isFinalized = step.finalized?.includes(node);
                   const isCurrent = step.highlightNodes?.includes(node);
+
                   return (
                     <tr key={node} className={isCurrent ? 'active-row' : ''}>
                       <td style={{ color: 'var(--text-primary)' }}>{node}</td>
                       <td style={{ color: dist === Infinity ? 'var(--text-tertiary)' : accentColor }}>
-                        {dist === Infinity ? '∞' : dist}
+                        {dist === Infinity ? 'inf' : dist}
                       </td>
                       <td>
                         {isFinalized ? (
-                          <span className="text-[0.6rem] px-1 py-0.5 rounded" style={{ background: 'rgba(16,185,129,0.15)', color: 'var(--color-path-400)' }}>✓</span>
+                          <span className="text-[0.6rem] px-1 py-0.5 rounded" style={{ background: 'rgba(16,185,129,0.15)', color: 'var(--color-path-400)' }}>Done</span>
                         ) : (
-                          <span className="text-[0.6rem]" style={{ color: 'var(--text-tertiary)' }}>—</span>
+                          <span className="text-[0.6rem]" style={{ color: 'var(--text-tertiary)' }}>-</span>
                         )}
                       </td>
                     </tr>
@@ -211,12 +205,11 @@ export default function AlgorithmTrace({ type, steps, currentStep, onStepChange 
         </div>
       )}
 
-      {/* Edge Decision Table (Kruskal) */}
       {type === 'kruskal' && step?.edge && (
         <div className="rounded-lg p-2 text-[0.65rem] font-mono" style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)' }}>
           <div className="flex items-center gap-2 mb-1">
             <span style={{ color: 'var(--text-secondary)' }}>Edge:</span>
-            <span style={{ color: 'var(--text-primary)' }}>{step.edge.from} — {step.edge.to}</span>
+            <span style={{ color: 'var(--text-primary)' }}>{step.edge.from} - {step.edge.to}</span>
             <span style={{ color: 'var(--color-mst-400)' }}>({step.edge.weight})</span>
           </div>
           <div className="flex items-center gap-2">
@@ -225,20 +218,32 @@ export default function AlgorithmTrace({ type, steps, currentStep, onStepChange 
               className="px-1.5 py-0.5 rounded text-[0.6rem] font-medium"
               style={{
                 background: step.action === 'accepted' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
-                color: step.action === 'accepted' ? 'var(--color-path-400)' : '#fca5a5',
+                color: step.action === 'accepted' ? 'var(--color-path-400)' : 'var(--color-danger-600)',
               }}
             >
-              {step.action === 'accepted' ? '✓ Accepted' : '✗ Rejected'}
+              {step.action === 'accepted' ? 'Accepted' : 'Rejected'}
             </span>
           </div>
           <p className="mt-1 text-[0.6rem]" style={{ color: 'var(--text-tertiary)' }}>
-            {step.reason}
+            {normalizeTraceText(step.reason || '')}
           </p>
           <div className="mt-1.5 text-[0.6rem]" style={{ color: 'var(--text-tertiary)' }}>
-            MST edges so far: {step.mstEdgesSoFar?.length || 0} • Cost: {step.costSoFar || 0}
+            MST edges so far: {step.mstEdgesSoFar?.length || 0} | Cost: {step.costSoFar || 0}
           </div>
         </div>
       )}
     </div>
   );
+}
+
+function normalizeTraceText(text = '') {
+  return text
+    .replace(/∞/g, 'inf')
+    .replace(/≥/g, '>=')
+    .replace(/[→↔—–]/g, '-')
+    .replace(/[✓✔]/g, 'Done')
+    .replace(/[✗✕]/g, 'Rejected')
+    .replace(/[^\n]+/g, (match) => [...match].map(char => char.charCodeAt(0) > 127 ? ' ' : char).join(''))
+    .replace(/\s+/g, ' ')
+    .trim();
 }

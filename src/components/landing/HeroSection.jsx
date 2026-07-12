@@ -76,9 +76,9 @@ export default function HeroSection() {
 
     const imgRatio = img.width / img.height;
     const canvasRatio = canvas.width / canvas.height;
-    
+
     let drawWidth, drawHeight, drawX, drawY;
-    
+
     if (canvasRatio > imgRatio) {
       // Canvas is wider than image (letterbox/crop top/bottom)
       drawWidth = canvas.width;
@@ -125,7 +125,7 @@ export default function HeroSection() {
       // Reduced motion fallback: Draw final frame statically, reveal elements immediately
       currentFrameIndexRef.current = framePaths.length - 1;
       drawFrame(framePaths.length - 1);
-      
+
       gsap.set(brandRef.current, { opacity: 1, scale: 1 });
       gsap.set(ctaRef.current, { opacity: 1, y: 0 });
       gsap.set(chevronRef.current, { opacity: 0 });
@@ -146,7 +146,7 @@ export default function HeroSection() {
 
     const activeScroll = 2500;
     const getViewportHeight = () => window.innerHeight;
-    
+
     // Active animation takes Da units. The cover reveal scroll pads the timeline by Ds.
     const Da = 8;
     const Ds = Da * (getViewportHeight() / activeScroll);
@@ -270,11 +270,10 @@ export default function HeroSection() {
   return (
     <div
       ref={containerRef}
-      className={`relative w-full h-screen overflow-hidden bg-[#E7D7BE] text-[#2D251A] hero-locked-cream flex flex-col justify-between pt-20 transition-all duration-500 ${
-        isDarkMode 
-          ? 'rounded-b-[2rem] md:rounded-b-[3.5rem] shadow-[0_30px_70px_-15px_rgba(0,0,0,0.55)] z-20 border-b border-[#DFCDB2]/30' 
+      className={`relative w-full h-screen overflow-hidden bg-[#E7D7BE] text-[#2D251A] hero-locked-cream flex flex-col justify-between pt-20 transition-all duration-500 ${isDarkMode
+          ? 'rounded-b-[2rem] md:rounded-b-[3.5rem] shadow-[0_30px_70px_-15px_rgba(0,0,0,0.55)] z-20 border-b border-[#DFCDB2]/30'
           : 'z-10'
-      }`}
+        }`}
     >
       {/* HTML5 Canvas sequence viewport */}
       <canvas
@@ -305,7 +304,7 @@ export default function HeroSection() {
             to="/dashboard"
             className="px-8 py-3.5 sm:px-10 sm:py-4 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-500 hover:to-cyan-600 text-white font-bold text-xs sm:text-sm tracking-wider shadow-lg shadow-cyan-900/20 hover:scale-[1.03] active:scale-100 transition-all duration-200 text-center cursor-pointer uppercase border border-cyan-500/20 block"
           >
-            Launch Dashboard
+            Optimize Your Routes
           </Link>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { dijkstra } from '../algorithms/dijkstra';
 import { kruskal } from '../algorithms/kruskal';
 
@@ -17,8 +17,13 @@ export function useAlgorithm(graphData, setStats) {
     setRouteHistory([]);
   }, []);
 
+  useEffect(() => {
+    resetAlgorithmState();
+  }, [graphData, resetAlgorithmState]);
+
   const findShortestPath = useCallback((source, destination, stepThrough = false) => {
     if (!graphData) return;
+    if (!graphData.nodes.includes(source) || !graphData.nodes.includes(destination)) return;
 
     const result = dijkstra(graphData.adjacencyList, source, destination);
     setShortestPath(result);

@@ -22,25 +22,21 @@ export default function ExportMenu({ onExport, hasData, label = 'Export', classN
 
       {exportOpen && hasData && (
         <>
-          {/* Overlay to catch clicks outside the menu */}
           <div className="fixed inset-0 z-40" onClick={() => setExportOpen(false)} />
           <div
-            className="absolute right-0 top-full mt-1 rounded-lg shadow-lg py-1 z-50 min-w-[140px] fade-in"
-            style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}
+            className="absolute right-0 top-full mt-2 rounded-xl shadow-lg p-1 z-50 min-w-[150px] fade-in export-menu-popover"
           >
             <button
               onClick={() => { onExport('json'); setExportOpen(false); }}
-              className="w-full px-4 py-2 text-left text-xs font-medium flex items-center gap-2 hover:opacity-80 transition-opacity"
-              style={{ color: 'var(--text-primary)' }}
+              className="w-full px-3 py-2 rounded-lg text-left text-xs font-medium flex items-center gap-2 transition-colors"
             >
               <span style={{ color: 'var(--color-brand-500)' }}>{'{ }'}</span> Export as JSON
             </button>
             <button
               onClick={() => { onExport('pdf'); setExportOpen(false); }}
-              className="w-full px-4 py-2 text-left text-xs font-medium flex items-center gap-2 hover:opacity-80 transition-opacity"
-              style={{ color: 'var(--text-primary)' }}
+              className="w-full px-3 py-2 rounded-lg text-left text-xs font-medium flex items-center gap-2 transition-colors"
             >
-              <span style={{ color: 'var(--color-path-500)' }}>📄</span> Export as PDF
+              <span style={{ color: 'var(--color-path-500)' }}>PDF</span> Export as PDF
             </button>
           </div>
         </>

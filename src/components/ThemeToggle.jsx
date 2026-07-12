@@ -1,10 +1,10 @@
 import React from 'react';
 
-export default function ThemeToggle({ theme, toggleTheme }) {
+export default function ThemeToggle({ theme, toggleTheme, className = '' }) {
   return (
     <button
       onClick={toggleTheme}
-      className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:scale-105"
+      className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:scale-105 ${className}`}
       style={{ background: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}
       title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
       aria-label="Toggle theme"

@@ -17,12 +17,9 @@ export default function Sidebar({
 }) {
   return (
     <aside
-      className="h-full overflow-y-auto flex flex-col"
+      className="dashboard-sidebar h-full overflow-y-auto flex flex-col"
       style={{
-        background: 'var(--bg-sidebar)',
         color: 'var(--sidebar-text)',
-        width: '280px',
-        flexShrink: 0,
       }}
     >
       {/* Upload Section */}
@@ -53,4 +50,3 @@ export default function Sidebar({
     </aside>
   );
 }
-

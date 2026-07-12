@@ -7,7 +7,6 @@ const GraphCanvas = forwardRef(function GraphCanvas({
   shortestPath,
   mstResult,
   traceStepData,
-  activeTraceType,
   theme,
 }, ref) {
   const containerRef = useRef(null);
@@ -16,7 +15,6 @@ const GraphCanvas = forwardRef(function GraphCanvas({
   const edgesDatasetRef = useRef(null);
   const [physicsEnabled, setPhysicsEnabled] = useState(true);
 
-  // Colors
   const isDark = theme === 'dark';
   const colors = {
     nodeBg: isDark ? '#334155' : '#ffffff',
@@ -35,15 +33,30 @@ const GraphCanvas = forwardRef(function GraphCanvas({
     background: isDark ? '#1e293b' : '#ffffff',
   };
 
-  // Build network when graphData changes
+  const fitToScreen = useCallback(() => {
+    networkRef.current?.fit({
+      animation: { duration: 500, easingFunction: 'easeInOutQuad' },
+      minZoomLevel: 0.35,
+      maxZoomLevel: 1.35,
+    });
+  }, []);
+
   useEffect(() => {
     if (!graphData || !containerRef.current) return;
 
+    const denseGraph = graphData.nodes.length > 12;
     const nodesDataset = new DataSet(
-      graphData.nodes.map((name, i) => ({
+      graphData.nodes.map(name => ({
         id: name,
         label: name,
-        font: { size: 12, face: 'Inter', color: colors.nodeText, bold: { color: colors.nodeText } },
+        font: {
+          size: denseGraph ? 11 : 13,
+          face: 'Inter',
+          color: colors.nodeText,
+          strokeWidth: isDark ? 4 : 5,
+          strokeColor: colors.background,
+          vadjust: 20,
+        },
         color: {
           background: colors.nodeBg,
           border: colors.nodeBorder,
@@ -51,14 +64,14 @@ const GraphCanvas = forwardRef(function GraphCanvas({
           hover: { background: colors.nodeBg, border: '#06b6d4' },
         },
         shape: 'dot',
-        size: 18,
+        size: denseGraph ? 15 : 18,
         borderWidth: 2,
         shadow: { enabled: true, size: 6, x: 0, y: 2, color: 'rgba(0,0,0,0.15)' },
       }))
     );
 
     const edgesDataset = new DataSet(
-      graphData.edges.map((edge, i) => ({
+      graphData.edges.map(edge => ({
         id: `${edge.from}-${edge.to}`,
         from: edge.from,
         to: edge.to,
@@ -75,19 +88,20 @@ const GraphCanvas = forwardRef(function GraphCanvas({
     edgesDatasetRef.current = edgesDataset;
 
     const options = {
+      autoResize: true,
       physics: {
-        enabled: physicsEnabled,
+        enabled: true,
         solver: 'forceAtlas2Based',
         forceAtlas2Based: {
-          gravitationalConstant: -40,
-          centralGravity: 0.005,
-          springLength: 150,
+          gravitationalConstant: denseGraph ? -75 : -55,
+          centralGravity: 0.018,
+          springLength: denseGraph ? 175 : 165,
           springConstant: 0.04,
-          damping: 0.4,
+          damping: 0.42,
         },
         stabilization: {
           enabled: true,
-          iterations: 200,
+          iterations: denseGraph ? 350 : 250,
           fit: true,
         },
       },
@@ -103,7 +117,7 @@ const GraphCanvas = forwardRef(function GraphCanvas({
         },
       },
       nodes: {
-        font: { size: 12, face: 'Inter' },
+        labelHighlightBold: false,
       },
       edges: {
         font: { size: 10, face: 'JetBrains Mono', align: 'top' },
@@ -116,36 +130,57 @@ const GraphCanvas = forwardRef(function GraphCanvas({
 
     const network = new Network(containerRef.current, { nodes: nodesDataset, edges: edgesDataset }, options);
     networkRef.current = network;
+    setPhysicsEnabled(true);
 
-    // Tooltip on hover
+    const fitGraph = (animation = true) => {
+      if (!networkRef.current) return;
+      network.fit({
+        animation: animation ? { duration: 500, easingFunction: 'easeInOutQuad' } : false,
+        minZoomLevel: 0.35,
+        maxZoomLevel: 1.35,
+      });
+    };
+
+    network.once('stabilizationIterationsDone', () => {
+      network.setOptions({ physics: { enabled: false } });
+      setPhysicsEnabled(false);
+      requestAnimationFrame(() => fitGraph(true));
+    });
+
+    const fitTimer = window.setTimeout(() => fitGraph(false), 400);
+    const resizeObserver = new ResizeObserver(() => {
+      requestAnimationFrame(() => fitGraph(true));
+    });
+    resizeObserver.observe(containerRef.current);
+
     network.on('hoverNode', (params) => {
       const nodeId = params.node;
       const neighbors = graphData.adjacencyList.get(nodeId) || [];
-      const title = `${nodeId}\nConnections: ${neighbors.length}\n${neighbors.map(n => `→ ${n.node} (${n.weight})`).join('\n')}`;
+      const title = `${nodeId}\nConnections: ${neighbors.length}\n${neighbors.map(n => `-> ${n.node} (${n.weight})`).join('\n')}`;
       nodesDataset.update({ id: nodeId, title });
     });
 
     network.on('hoverEdge', (params) => {
       const edgeData = edgesDataset.get(params.edge);
       if (edgeData) {
-        edgesDataset.update({ id: params.edge, title: `${edgeData.from} ↔ ${edgeData.to}\nDistance: ${edgeData.label}` });
+        edgesDataset.update({ id: params.edge, title: `${edgeData.from} <-> ${edgeData.to}\nDistance: ${edgeData.label}` });
       }
     });
 
     return () => {
+      window.clearTimeout(fitTimer);
+      resizeObserver.disconnect();
       network.destroy();
       networkRef.current = null;
     };
-  }, [graphData]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [graphData, theme]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Update highlights when results or trace change
   useEffect(() => {
     if (!nodesDatasetRef.current || !edgesDatasetRef.current || !graphData) return;
 
     const nodesDs = nodesDatasetRef.current;
     const edgesDs = edgesDatasetRef.current;
 
-    // Reset all nodes and edges to default colors
     const resetNodes = graphData.nodes.map(name => ({
       id: name,
       color: {
@@ -154,7 +189,7 @@ const GraphCanvas = forwardRef(function GraphCanvas({
         highlight: { background: colors.nodeBg, border: '#06b6d4' },
         hover: { background: colors.nodeBg, border: '#06b6d4' },
       },
-      size: 18,
+      size: graphData.nodes.length > 12 ? 15 : 18,
       borderWidth: 2,
     }));
 
@@ -167,7 +202,6 @@ const GraphCanvas = forwardRef(function GraphCanvas({
     nodesDs.update(resetNodes);
     edgesDs.update(resetEdges);
 
-    // Apply MST highlights (first layer)
     if (mstResult?.mstEdges) {
       const mstNodeSet = new Set();
       for (const edge of mstResult.mstEdges) {
@@ -199,7 +233,6 @@ const GraphCanvas = forwardRef(function GraphCanvas({
       }
     }
 
-    // Apply shortest path highlights (second layer, on top of MST)
     if (shortestPath?.path) {
       for (let i = 0; i < shortestPath.path.length; i++) {
         const nodeId = shortestPath.path[i];
@@ -232,7 +265,6 @@ const GraphCanvas = forwardRef(function GraphCanvas({
       }
     }
 
-    // Apply trace step highlights (topmost layer)
     if (traceStepData) {
       for (const nodeId of (traceStepData.highlightNodes || [])) {
         if (nodesDs.get(nodeId)) {
@@ -265,34 +297,27 @@ const GraphCanvas = forwardRef(function GraphCanvas({
     }
   }, [shortestPath, mstResult, traceStepData, graphData, theme]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Update background on theme change
   useEffect(() => {
     if (networkRef.current) {
       networkRef.current.setOptions({
         nodes: {
-          font: { color: colors.nodeText },
+          font: { color: colors.nodeText, strokeColor: colors.background },
         },
       });
+      requestAnimationFrame(() => fitToScreen());
     }
-  }, [theme]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Controls
-  const fitToScreen = useCallback(() => {
-    networkRef.current?.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
-  }, []);
+  }, [theme, fitToScreen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const resetLayout = useCallback(() => {
     if (networkRef.current) {
       networkRef.current.setOptions({ physics: { enabled: true } });
       setPhysicsEnabled(true);
-      setTimeout(() => {
-        networkRef.current?.stabilize(200);
-        setTimeout(() => {
-          networkRef.current?.fit({ animation: { duration: 500 } });
-        }, 500);
+      window.setTimeout(() => {
+        networkRef.current?.stabilize(250);
+        window.setTimeout(() => fitToScreen(), 500);
       }, 100);
     }
-  }, []);
+  }, [fitToScreen]);
 
   const togglePhysics = useCallback(() => {
     const newState = !physicsEnabled;
@@ -308,14 +333,10 @@ const GraphCanvas = forwardRef(function GraphCanvas({
   }), [fitToScreen, resetLayout, togglePhysics]);
 
   return (
-    <div className="h-full w-full relative graph-container" style={{ background: colors.background }}>
-      {/* Graph Container */}
+    <div className="h-full w-full relative graph-container dashboard-graph-canvas" style={{ background: colors.background }}>
       <div ref={containerRef} className="w-full h-full" />
 
-      {/* Floating Toolbar */}
-      <div
-        className="absolute top-3 right-3 flex flex-col gap-1.5 z-10"
-      >
+      <div className="absolute top-3 right-3 flex flex-wrap justify-end gap-1.5 z-10 max-w-[220px]">
         <ToolbarButton
           onClick={fitToScreen}
           title="Fit to screen"
@@ -347,7 +368,6 @@ const GraphCanvas = forwardRef(function GraphCanvas({
         />
       </div>
 
-      {/* Empty State */}
       {!graphData && (
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-tertiary)', opacity: 0.4 }}>
@@ -366,7 +386,6 @@ const GraphCanvas = forwardRef(function GraphCanvas({
         </div>
       )}
 
-      {/* Legend */}
       {graphData && (shortestPath?.path || mstResult?.mstEdges) && (
         <div
           className="absolute bottom-3 left-3 rounded-lg px-3 py-2 text-[0.6rem] flex flex-col gap-1 z-10 fade-in"

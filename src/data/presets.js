@@ -1,6 +1,6 @@
 /**
  * Preset Demo Datasets
- * 
+ *
  * Bundled datasets so the app is fully demoable without requiring
  * the user to have their own file ready. Each preset includes a
  * name, description, and raw text data in space-separated format.
@@ -11,7 +11,7 @@ export const presets = [
     id: 'indian-cities',
     name: 'Indian Cities',
     description: '8 major Indian cities with road distances (km)',
-    icon: '🇮🇳',
+    icon: 'IN',
     data: `Mumbai Delhi 1400
 Mumbai Bangalore 980
 Mumbai Hyderabad 710
@@ -29,7 +29,7 @@ Delhi Lucknow 550`,
     id: 'warehouse-network',
     name: 'Warehouse Network',
     description: '10 distribution centers with shipping costs',
-    icon: '🏭',
+    icon: 'WH',
     data: `Hub-Alpha Hub-Beta 45
 Hub-Alpha Hub-Gamma 80
 Hub-Beta Hub-Delta 55
@@ -53,7 +53,7 @@ Hub-Iota Hub-Eta 55`,
     id: 'campus-map',
     name: 'Campus Map',
     description: '7 campus buildings with walking distances (meters)',
-    icon: '🎓',
+    icon: 'CM',
     data: `Library Cafeteria 200
 Library Lab 350
 Library Admin 150
@@ -70,7 +70,7 @@ Library Auditorium 500`,
     id: 'european-cities',
     name: 'European Cities',
     description: '12 European capitals with flight distances (km)',
-    icon: '🇪🇺',
+    icon: 'EU',
     data: `London Paris 340
 London Amsterdam 360
 London Dublin 460
