@@ -104,6 +104,37 @@ body {
   --sidebar-hover: rgba(255, 255, 255, 0.04);
 }
 
+/* ---- Landing Page Light Theme (Default White/Off-White Palette) ---- */
+html:not(.dark) .landing-page-container {
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #FAFAF9; /* subtle off-white for cards */
+  --bg-tertiary: #F3F2EF; /* slightly deeper off-white */
+  --bg-navbar: rgba(255, 255, 255, 0.85); /* frosted white navbar */
+  --text-primary: #2D251A; /* dark charcoal-brown */
+  --text-secondary: #5C4F3C;
+  --text-tertiary: #8C7C66;
+  --border-color: rgba(92, 79, 60, 0.18);
+  --card-shadow: 0 4px 12px rgba(92, 79, 60, 0.05), 0 1px 3px rgba(92, 79, 60, 0.02);
+  --card-shadow-hover: 0 12px 24px rgba(92, 79, 60, 0.12), 0 4px 8px rgba(92, 79, 60, 0.08);
+}
+
+
+/* ---- Hero Section Locked Cream Theme (Always Cream) ---- */
+.hero-locked-cream {
+  --bg-primary: #E7D7BE;
+  --bg-secondary: #F2E6D0;
+  --bg-tertiary: #DFCDB2;
+  --bg-navbar: rgba(231, 215, 190, 0.85);
+  --text-primary: #2D251A;
+  --text-secondary: #5C4F3C;
+  --text-tertiary: #8C7C66;
+  --border-color: rgba(92, 79, 60, 0.25);
+  --card-shadow: 0 4px 10px rgba(92, 79, 60, 0.08), 0 1px 3px rgba(92, 79, 60, 0.04);
+  --card-shadow-hover: 0 12px 24px rgba(92, 79, 60, 0.15), 0 4px 8px rgba(92, 79, 60, 0.1);
+  background-color: #E7D7BE !important;
+  color: #2D251A !important;
+}
+
 /* ---- Scrollbar Styling ---- */
 ::-webkit-scrollbar {
   width: 6px;

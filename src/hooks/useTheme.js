@@ -8,9 +8,9 @@ export function useTheme() {
   const [theme, setTheme] = useState(() => {
     try {
       const stored = localStorage.getItem('logiflow-theme');
-      return stored === 'light' ? 'light' : 'dark'; // Default to dark
+      return stored === 'dark' ? 'dark' : 'light'; // Default to light
     } catch {
-      return 'dark';
+      return 'light';
     }
   });
 
