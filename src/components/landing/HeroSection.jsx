@@ -119,6 +119,7 @@ export default function HeroSection() {
     if (isLoading) return;
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const featuresCover = document.querySelector('.features-cover-reveal');
 
     if (prefersReducedMotion) {
       // Reduced motion fallback: Draw final frame statically, reveal elements immediately
@@ -128,6 +129,9 @@ export default function HeroSection() {
       gsap.set(brandRef.current, { opacity: 1, scale: 1 });
       gsap.set(ctaRef.current, { opacity: 1, y: 0 });
       gsap.set(chevronRef.current, { opacity: 0 });
+      if (featuresCover) {
+        gsap.set(featuresCover, { y: window.innerHeight });
+      }
       return;
     }
 
@@ -136,6 +140,9 @@ export default function HeroSection() {
 
     const totalFrames = framePaths.length;
     const obj = { frame: 0 };
+    const landingNavbar = document.querySelector('.landing-navbar');
+    const landingNavForeground = Array.from(document.querySelectorAll('.landing-nav-foreground'));
+    const landingNavSubtitle = document.querySelector('.landing-nav-subtitle');
 
     const activeScroll = 2500;
     const getViewportHeight = () => window.innerHeight;
@@ -154,6 +161,26 @@ export default function HeroSection() {
         anticipatePin: 1,
       }
     });
+
+    if (landingNavbar) {
+      gsap.set(landingNavbar, {
+        backgroundColor: 'rgba(255, 255, 255, 0.85)',
+        borderColor: 'rgba(92, 79, 60, 0.18)',
+        boxShadow: '0 18px 45px rgba(45, 37, 26, 0.12)',
+      });
+    }
+
+    if (landingNavForeground.length) {
+      gsap.set(landingNavForeground, { color: '#2D251A' });
+    }
+
+    if (landingNavSubtitle) {
+      gsap.set(landingNavSubtitle, { color: '#8C7C66' });
+    }
+
+    if (featuresCover) {
+      gsap.set(featuresCover, { y: 0 });
+    }
 
     // 1. Scrub frames from 00001.jpg (0) to 00096.jpg (95) - occupies 0 to Da (first 2500px scroll)
     tl.to(obj, {
@@ -194,7 +221,34 @@ export default function HeroSection() {
       Da * 0.85
     );
 
-    // 5. Empty timeline spacer to pad for the slide-up cover reveal transition
+    // 5. Sync the floating nav color with the Features cover reveal phase.
+    if (landingNavbar) {
+      tl.to(landingNavbar, {
+        backgroundColor: '#123234',
+        borderColor: 'rgba(243, 242, 239, 0.16)',
+        boxShadow: '0 20px 50px rgba(18, 50, 52, 0.26)',
+        ease: 'none',
+        duration: Ds,
+      }, Da);
+    }
+
+    if (landingNavForeground.length) {
+      tl.to(landingNavForeground, {
+        color: '#F3F2EF',
+        ease: 'none',
+        duration: Ds,
+      }, Da);
+    }
+
+    if (landingNavSubtitle) {
+      tl.to(landingNavSubtitle, {
+        color: 'rgba(243, 242, 239, 0.68)',
+        ease: 'none',
+        duration: Ds,
+      }, Da);
+    }
+
+    // 6. Empty timeline spacer to pad for the slide-up cover reveal transition
     tl.to({}, { duration: Ds }, Da);
 
   }, { dependencies: [isLoading], scope: containerRef });

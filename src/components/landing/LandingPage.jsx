@@ -29,11 +29,11 @@ export default function LandingPage() {
   return (
     <div className="landing-page-container min-h-screen flex flex-col font-sans transition-colors duration-300" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       {/* Landing Navbar */}
-      <header className="fixed top-0 left-0 right-0 z-50 h-16 navbar-glass flex items-center justify-between px-6 md:px-12 border-b">
+      <header className="landing-navbar fixed top-4 left-4 right-4 z-50 mx-auto flex max-w-[1160px] items-center justify-between gap-4 rounded-full border px-4 py-2.5 shadow-[0_18px_45px_rgba(45,37,26,0.12)] backdrop-blur-xl md:left-6 md:right-6 md:px-5">
         {/* Logo */}
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--color-brand-500), var(--color-brand-700))' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <div className="landing-nav-foreground flex min-w-0 items-center gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cyan-500/10 ring-1 ring-cyan-500/20">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0EA5C4" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="6" cy="6" r="2" />
               <circle cx="18" cy="6" r="2" />
               <circle cx="6" cy="18" r="2" />
@@ -45,14 +45,14 @@ export default function LandingPage() {
               <line x1="13.5" y1="13.5" x2="16.5" y2="16.5" />
             </svg>
           </div>
-          <div>
+          <div className="min-w-0">
             <h1 className="text-lg font-bold leading-none tracking-tight">LogiFlow</h1>
-            <p className="text-[0.6rem] leading-none mt-0.5" style={{ color: 'var(--text-tertiary)' }}>Logistics Route Planner</p>
+            <p className="landing-nav-subtitle hidden text-[0.6rem] leading-none mt-0.5 sm:block">Logistics Route Planner</p>
           </div>
         </div>
 
         {/* Desktop Nav Items */}
-        <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
+        <nav className="landing-nav-foreground hidden md:flex items-center gap-8 text-sm font-medium">
           <a href="#features" className="hover:text-cyan-500 dark:hover:text-cyan-400 transition-colors">Features</a>
           <a href="#how-it-works" className="hover:text-cyan-500 dark:hover:text-cyan-400 transition-colors">Process</a>
           <a href="#algorithms" className="hover:text-cyan-500 dark:hover:text-cyan-400 transition-colors">Algorithms</a>

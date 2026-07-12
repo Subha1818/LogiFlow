@@ -378,6 +378,22 @@ html:not(.dark) .landing-page-container {
   border-bottom: 1px solid var(--border-color);
 }
 
+.landing-navbar {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(92, 79, 60, 0.18);
+  color: #2D251A;
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+.landing-nav-subtitle {
+  color: #8C7C66;
+}
+
+.features-cover-reveal {
+  transform: translateY(100vh);
+}
+
 /* ---- Route History Item ---- */
 .history-item {
   padding: 8px 12px;
